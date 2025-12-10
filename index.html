@@ -20,7 +20,11 @@
 <button onclick="toggleDark()" class="btn btn-dark">🌙 Dark Mode</button>
 
 <div id="dropArea" class="upload-box">
-    <button class="btn btn-green" id="btnUpload">📤 Upload Foto</button>
+    <button class="btn btn-blue" onclick="document.getElementById('inputFoto').click()">
+    📤 Upload Foto
+</button>
+
+<input type="file" id="inputFoto" accept="image/*" hidden>
     <input type="file" id="inputFoto" accept="image/*" hidden>
 </div>
 
@@ -46,3 +50,4 @@
 </body>
 
 </html>
+
