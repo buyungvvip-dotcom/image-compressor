@@ -1,37 +1,32 @@
-const dropArea = document.getElementById("dropArea");
 const input = document.getElementById("inputFoto");
 const preview = document.getElementById("preview");
 const hasil = document.getElementById("hasil");
 const slider = document.getElementById("qualitySlider");
 const angka = document.getElementById("nilaiQuality");
+const loading = document.getElementById("loading");
+const btnKompres = document.getElementById("btnKompres");
+const btnUltra = document.getElementById("btnUltra");
 
+/* Dark Mode */
 function toggleDark() {
     document.body.classList.toggle("dark");
 }
 
-slider.oninput = () => angka.innerText = slider.value;
-document.getElementById("btnUpload").onclick = () => input.click();
-input.onchange = () => tampilPreview(input.files[0]);
+/* Slider */
+slider.addEventListener("input", () => {
+    angka.innerText = slider.value;
+});
 
-dropArea.ondragover = e => {
-    e.preventDefault();
-    dropArea.classList.add("dragover");
-};
-dropArea.ondragleave = () => dropArea.classList.remove("dragover");
-dropArea.ondrop = e => {
-    e.preventDefault();
-    dropArea.classList.remove("dragover");
-    input.files = e.dataTransfer.files;
-    tampilPreview(e.dataTransfer.files[0]);
-};
-
-function tampilPreview(file) {
+/* Upload */
+input.addEventListener("change", () => {
+    if (!input.files.length) return;
     preview.style.display = "block";
-    preview.src = URL.createObjectURL(file);
-}
+    preview.src = URL.createObjectURL(input.files[0]);
+});
 
-document.getElementById("btnKompres").onclick = () => prosesKompres(false);
-document.getElementById("btnUltra").onclick = () => prosesKompres(true);
+/* Tombol */
+btnKompres.addEventListener("click", () => prosesKompres(false));
+btnUltra.addEventListener("click", () => prosesKompres(true));
 
 function prosesKompres(isUltra) {
     if (!input.files.length) {
@@ -40,8 +35,8 @@ function prosesKompres(isUltra) {
     }
 
     const file = input.files[0];
-    const originalSizeKB = (file.size / 1024).toFixed(1);
-    document.getElementById("loading").style.display = "block";
+    const originalKB = (file.size / 1024).toFixed(1);
+    loading.style.display = "block";
 
     new Compressor(file, {
         quality: isUltra ? 0.5 : slider.value,
@@ -49,21 +44,25 @@ function prosesKompres(isUltra) {
         maxWidth: 1600,
 
         success(result) {
-            document.getElementById("loading").style.display = "none";
+            loading.style.display = "none";
             const url = URL.createObjectURL(result);
             const compressedKB = (result.size / 1024).toFixed(1);
 
             hasil.innerHTML = `
                 <div class="info-box">
-                    <p>Awal: ${originalSizeKB} KB</p>
+                    <p>Ukuran Awal: ${originalKB} KB</p>
                     <p>Hasil: ${compressedKB} KB</p>
                     ${isUltra ? "<p style='color:red'><b>Mode Ultra Aktif</b></p>" : ""}
                 </div>
-                <img src="${url}" style="width:100%; margin-top:10px;">
+                <img src="${url}" style="width:100%;margin:10px 0">
                 <a href="${url}" download="foto-kompres.jpg">
                     <button class="btn btn-green">Download</button>
                 </a>
             `;
+        },
+        error() {
+            loading.style.display = "none";
+            alert("Gagal mengompres gambar");
         }
     });
 }
